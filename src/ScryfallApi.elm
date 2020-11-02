@@ -50,4 +50,4 @@ fetchCardByName cardName msg =
 fetchCardsByName : String -> (Result Http.Error CardSearchResponse -> msg) -> Cmd msg
 fetchCardsByName cardName msg =
     Http.get
-        { url = baseURL ++ "/cards/search?unique=prints&q=" ++ cardName, expect = Http.expectJson msg cardSearchResponseDecoder }
+        { url = baseURL ++ "/cards/search?unique=prints&q=!\"" ++ cardName ++ "\"", expect = Http.expectJson msg cardSearchResponseDecoder }
