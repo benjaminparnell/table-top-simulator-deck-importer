@@ -44,7 +44,7 @@ getCardImage card =
 
         Nothing ->
             card.faces
-                |> Maybe.map (\cardFaces -> cardFaces |> List.head |> Maybe.map .image |> Maybe.withDefault "")
+                |> Maybe.map (\cardFaces -> Tuple.first cardFaces |> .image)
                 |> Maybe.withDefault ""
 
 

@@ -8,7 +8,7 @@ module ScryfallApi exposing
     )
 
 import Http
-import Json.Decode exposing (bool, field, int, list, map, map2, map3, map4, maybe, oneOf, string)
+import Json.Decode exposing (andThen, bool, field, index, int, list, map, map2, map3, map4, maybe, oneOf, string)
 import Json.Encode
 
 
@@ -16,7 +16,7 @@ type alias Card =
     { id : String
     , name : String
     , image : Maybe String
-    , faces : Maybe (List CardFace)
+    , faces : Maybe ( CardFace, CardFace )
     }
 
 
@@ -51,13 +51,23 @@ cardFaceDecoder =
         (field "image_uris" (field "border_crop" string))
 
 
+arrayAsTuple2 : Json.Decode.Decoder a -> Json.Decode.Decoder b -> Json.Decode.Decoder ( a, b )
+arrayAsTuple2 a b =
+    index 0 a
+        |> andThen
+            (\aVal ->
+                index 1 b
+                    |> andThen (\bVal -> Json.Decode.succeed ( aVal, bVal ))
+            )
+
+
 cardDecoder : Json.Decode.Decoder Card
 cardDecoder =
     map4 Card
         (field "id" string)
         (field "name" string)
         (maybe (field "image_uris" (field "border_crop" string)))
-        (maybe (field "card_faces" (list cardFaceDecoder)))
+        (maybe (field "card_faces" (arrayAsTuple2 cardFaceDecoder cardFaceDecoder)))
 
 
 cardSearchResponseDecoder : Json.Decode.Decoder CardSearchResponse

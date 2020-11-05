@@ -52,6 +52,7 @@ import Html.Styled.Events exposing (onClick, onInput)
 import Json.Encode as Encode
 import Msg exposing (Msg(..))
 import ScryfallApi
+import Svg.Styled exposing (image)
 import UI
 
 
@@ -65,7 +66,7 @@ type alias DeckCard =
     { id : String
     , name : String
     , image : Maybe String
-    , faces : Maybe (List CardFace)
+    , faces : Maybe ( CardFace, CardFace )
     , quantity : Int
     }
 
@@ -118,6 +119,20 @@ secondDeckCoords =
     }
 
 
+thirdDeckCoords : DeckCoords
+thirdDeckCoords =
+    { posX = 6.6000000000000005
+    , posY = 1
+    , posZ = 0
+    , rotX = 0
+    , rotY = 180
+    , rotZ = 0
+    , scaleX = 1
+    , scaleY = 1
+    , scaleZ = 1
+    }
+
+
 encodeCard : DeckCard -> Encode.Value
 encodeCard card =
     Encode.object
@@ -140,22 +155,33 @@ encodeCard card =
         ]
 
 
-encodeImage : DeckCard -> Encode.Value
-encodeImage card =
+getBackImageUrl : DeckCard -> Bool -> String
+getBackImageUrl card doubleFaced =
+    if doubleFaced then
+        card.faces
+            |> Maybe.map (\cardFaces -> Tuple.second cardFaces |> .image)
+            |> Maybe.withDefault "https://s3.amazonaws.com/frogtown.cards.hq/CardBack.jpg"
+
+    else
+        "https://s3.amazonaws.com/frogtown.cards.hq/CardBack.jpg"
+
+
+encodeImage : Bool -> DeckCard -> Encode.Value
+encodeImage doubleFaced card =
     Encode.object
         [ ( "FaceURL", Encode.string <| getCardImage card )
-        , ( "BackURL", Encode.string "https://s3.amazonaws.com/frogtown.cards.hq/CardBack.jpg" )
+        , ( "BackURL", Encode.string <| getBackImageUrl card doubleFaced )
         , ( "NumHeight", Encode.int 1 )
         , ( "NumWidth", Encode.int 1 )
         , ( "BackIsHidden", Encode.bool True )
         ]
 
 
-encodeImages : List DeckCard -> Encode.Value
-encodeImages cards =
+encodeImages : Bool -> List DeckCard -> Encode.Value
+encodeImages doubleFaced cards =
     cards
         |> expandQuantities
-        |> List.indexedMap (\index card -> ( String.fromInt (index + 1), encodeImage card ))
+        |> List.indexedMap (\index card -> ( String.fromInt (index + 1), encodeImage doubleFaced card ))
         |> Encode.object
 
 
@@ -185,15 +211,31 @@ expandQuantities cards =
     List.foldr (\card newList -> List.concat [ newList, List.repeat card.quantity card ]) [] cards
 
 
-makeEncodeableDecks : Deck -> List ( List DeckCard, DeckCoords )
+makeEncodeableDecks : Deck -> List ( List DeckCard, DeckCoords, Bool )
 makeEncodeableDecks deck =
-    [ ( deck.cards, firstDeckCoords ) ]
+    [ ( deck.cards, firstDeckCoords, False ) ]
         ++ (if List.isEmpty deck.sideboard then
-                []
+                [ ( collectDoubleFacedCardsInDeck deck, secondDeckCoords, True ) ]
 
             else
-                [ ( deck.sideboard, secondDeckCoords ) ]
+                [ ( deck.sideboard, secondDeckCoords, False )
+                , ( collectDoubleFacedCardsInDeck deck, thirdDeckCoords, True )
+                ]
            )
+
+
+collectDoubleFacedCardsInDeck : Deck -> List DeckCard
+collectDoubleFacedCardsInDeck deck =
+    List.concat [ deck.cards, deck.sideboard ]
+        |> List.filter
+            (\card ->
+                case card.faces of
+                    Just _ ->
+                        True
+
+                    Nothing ->
+                        False
+            )
 
 
 encodeObjectStates : Deck -> Encode.Value
@@ -220,12 +262,12 @@ encodeCoords coords =
         ]
 
 
-encodeDeck : ( List DeckCard, DeckCoords ) -> Encode.Value
-encodeDeck ( cards, coords ) =
+encodeDeck : ( List DeckCard, DeckCoords, Bool ) -> Encode.Value
+encodeDeck ( cards, coords, doubleFaced ) =
     Encode.object
         [ ( "Name", Encode.string "DeckCustom" )
         , ( "ContainedObjects", cards |> encodeContainedObjects )
-        , ( "CustomDeck", cards |> encodeImages )
+        , ( "CustomDeck", cards |> encodeImages doubleFaced )
         , ( "DeckIDs", cards |> encodeDeckIds )
         , ( "Transform"
           , encodeCoords coords
@@ -377,7 +419,7 @@ getCardImage card =
 
         Nothing ->
             card.faces
-                |> Maybe.map (\cardFaces -> cardFaces |> List.head |> Maybe.map .image |> Maybe.withDefault "")
+                |> Maybe.map (\cardFaces -> Tuple.first cardFaces |> .image)
                 |> Maybe.withDefault ""
 
 
