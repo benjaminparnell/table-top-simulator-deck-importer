@@ -1,11 +1,13 @@
 module Deck exposing
     ( Deck
     , addScryfallCardToDeck
+    , chunk
     , decreaseQuantityOfCard
     , exportDeckToTableTopSimulator
     , getName
     , hasCard
     , increaseQuantityOfCard
+    , mapScryfallCardToDeckCard
     , setBoardCards
     , setCards
     , setName
@@ -24,6 +26,7 @@ import Css
         , displayFlex
         , height
         , hex
+        , int
         , justifyContent
         , left
         , margin
@@ -41,6 +44,7 @@ import Css
         , right
         , spaceBetween
         , width
+        , zIndex
         )
 import Html.Styled exposing (Attribute, Html, button, div, img, input, p, styled, text)
 import Html.Styled.Attributes exposing (attribute, name, placeholder, src, value)
@@ -51,10 +55,17 @@ import ScryfallApi
 import UI
 
 
+type alias CardFace =
+    { name : String
+    , image : String
+    }
+
+
 type alias DeckCard =
     { id : String
     , name : String
-    , image : String
+    , image : Maybe String
+    , faces : Maybe (List CardFace)
     , quantity : Int
     }
 
@@ -132,7 +143,7 @@ encodeCard card =
 encodeImage : DeckCard -> Encode.Value
 encodeImage card =
     Encode.object
-        [ ( "FaceURL", Encode.string card.image )
+        [ ( "FaceURL", Encode.string <| getCardImage card )
         , ( "BackURL", Encode.string "https://s3.amazonaws.com/frogtown.cards.hq/CardBack.jpg" )
         , ( "NumHeight", Encode.int 1 )
         , ( "NumWidth", Encode.int 1 )
@@ -229,7 +240,7 @@ exportDeckToTableTopSimulator deck =
 
 mapScryfallCardToDeckCard : ScryfallApi.Card -> DeckCard
 mapScryfallCardToDeckCard card =
-    DeckCard card.id card.name card.image 1
+    DeckCard card.id card.name card.image card.faces 1
 
 
 addScryfallCardToDeck : ScryfallApi.Card -> List DeckCard -> List DeckCard
@@ -358,12 +369,24 @@ cardViewButtonStyles =
     [ padding2 (px 5) (px 10), minWidth (px 0), marginLeft (px 5) ]
 
 
+getCardImage : DeckCard -> String
+getCardImage card =
+    case card.image of
+        Just image ->
+            image
+
+        Nothing ->
+            card.faces
+                |> Maybe.map (\cardFaces -> cardFaces |> List.head |> Maybe.map .image |> Maybe.withDefault "")
+                |> Maybe.withDefault ""
+
+
 cardView : Board.Board -> DeckCard -> Html Msg
 cardView board card =
     styled div
-        [ width (px 250), maxWidth (pct 33), position relative, padding (px 10) ]
+        [ width (px 250), maxWidth (pct 33), position relative, padding (px 10), zIndex (int 1) ]
         []
-        [ styled img [ maxWidth (pct 100), marginTop (px 0), marginBottom (px 0) ] [ src card.image ] []
+        [ styled img [ maxWidth (pct 100), marginTop (px 0), marginBottom (px 0) ] [ src <| getCardImage card ] []
         , styled div
             [ position absolute, bottom (px 10), right (px 10), displayFlex, padding (px 10) ]
             []
@@ -427,7 +450,12 @@ view deck board =
                 [ boardButton [] "Main" Board.Main (deckListLength deck.cards)
                 , boardButton [ marginLeft (px 10) ] "Sideboard" Board.Side (deckListLength deck.sideboard)
                 ]
-            , UI.button [] [ onClick Msg.ExportDeckToTableTopSimulator ] [ text "Export" ]
+            , styled div
+                []
+                []
+                [ UI.button [] [ onClick Msg.ToggleModal ] [ text "Import" ]
+                , UI.button [ marginLeft (px 10) ] [ onClick Msg.ExportDeckToTableTopSimulator ] [ text "Export" ]
+                ]
             ]
         , styled div [ width (pct 100) ] [] (List.map (cardRow board) (chunk 4 cards))
         ]

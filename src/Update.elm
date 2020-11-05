@@ -3,6 +3,8 @@ module Update exposing (update)
 import Board
 import CardSearchForm.Model as CardSearchFormModel
 import Deck
+import DeckImportModal.Importer as DeckImporter
+import DeckImportModal.Model
 import File.Download as Download
 import Model
 import Msg
@@ -115,3 +117,76 @@ update msg model =
 
         Msg.SwapCardArt cardName cardWithNewArt ->
             ( { model | deck = Deck.swapCardByNameInBoard cardName cardWithNewArt Board.Main model.deck }, Cmd.none )
+
+        Msg.ToggleModal ->
+            ( { model | isModalOpen = not model.isModalOpen }, Cmd.none )
+
+        Msg.ImportDeck deckString ->
+            let
+                deckStringFormat =
+                    DeckImporter.getDeckStringFormat deckString
+
+                cards =
+                    DeckImporter.getCardsFromDeckString deckString deckStringFormat
+
+                cardNames =
+                    List.map (\t -> Tuple.first t) cards
+            in
+            if DeckImporter.isInvalidFormat deckStringFormat then
+                ( model, Cmd.none )
+
+            else if List.isEmpty cards then
+                ( model, Cmd.none )
+
+            else
+                ( model
+                , Deck.chunk 75 cardNames
+                    |> List.map (\cardChunk -> ScryfallApi.fetchCollectionByNames cardChunk (Msg.GotCardsFromImport cards))
+                    |> Cmd.batch
+                )
+
+        Msg.GotCardsFromImport cardsWithQuantities result ->
+            case result of
+                Ok response ->
+                    ( Model.setDeck
+                        (Deck.setBoardCards
+                            Board.Main
+                            ((response.data
+                                |> List.map
+                                    (\card ->
+                                        let
+                                            mappedCard =
+                                                Deck.mapScryfallCardToDeckCard card
+
+                                            cardQuantity =
+                                                List.foldl
+                                                    (\cardWithQuantity quantity ->
+                                                        if Tuple.first cardWithQuantity == mappedCard.name then
+                                                            Tuple.second cardWithQuantity
+
+                                                        else
+                                                            quantity
+                                                    )
+                                                    1
+                                                    cardsWithQuantities
+                                        in
+                                        { mappedCard | quantity = cardQuantity }
+                                    )
+                             )
+                                ++ model.deck.cards
+                            )
+                            model.deck
+                        )
+                        model
+                    , Cmd.none
+                    )
+
+                Err err ->
+                    ( model, Cmd.none )
+
+        Msg.UpdateDeckString deckString ->
+            ( Model.setDeckImportModalModel
+                (DeckImportModal.Model.setDeckString deckString model.deckImportModalModel)
+                model
+            , Cmd.none
+            )

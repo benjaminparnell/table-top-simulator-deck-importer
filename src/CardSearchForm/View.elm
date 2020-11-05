@@ -36,6 +36,18 @@ import ScryfallApi
 import UI
 
 
+getCardImage : ScryfallApi.Card -> String
+getCardImage card =
+    case card.image of
+        Just image ->
+            image
+
+        Nothing ->
+            card.faces
+                |> Maybe.map (\cardFaces -> cardFaces |> List.head |> Maybe.map .image |> Maybe.withDefault "")
+                |> Maybe.withDefault ""
+
+
 cardColumn : List ScryfallApi.Card -> Html Msg.Msg
 cardColumn cards =
     styled div
@@ -54,7 +66,7 @@ cardView actions card =
     styled div
         [ position relative, padding (px 10), width (px 336) ]
         []
-        [ styled img [ maxWidth none, width (pct 100), marginTop (px 0), marginBottom (px 0) ] [ src card.image, alt card.name ] []
+        [ styled img [ maxWidth none, width (pct 100), marginTop (px 0), marginBottom (px 0) ] [ src <| getCardImage card, alt card.name ] []
         , styled div
             [ position absolute, bottom (px 14), right (px 10), padding (px 10) ]
             []

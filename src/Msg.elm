@@ -19,3 +19,7 @@ type Msg
     | GetAlternativePrintings String
     | GotAlternativePrintings (Result Http.Error ScryfallApi.CardSearchResponse)
     | SwapCardArt String ScryfallApi.Card
+    | ToggleModal
+    | UpdateDeckString String
+    | ImportDeck String
+    | GotCardsFromImport (List ( String, Int )) (Result Http.Error ScryfallApi.CardCollectionResponse)

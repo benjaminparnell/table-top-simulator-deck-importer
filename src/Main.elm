@@ -4,6 +4,7 @@ import Browser
 import CardSearchForm.View
 import Css exposing (displayFlex)
 import Deck
+import DeckImportModal.View
 import Html.Styled exposing (Attribute, Html, div, styled, toUnstyled)
 import Model
 import Msg exposing (Msg)
@@ -30,4 +31,11 @@ view model =
     styled div
         [ displayFlex ]
         []
-        [ CardSearchForm.View.view model.cardSearchFormModel, Deck.view model.deck model.board ]
+        [ if model.isModalOpen then
+            DeckImportModal.View.view model.deckImportModalModel
+
+          else
+            Html.Styled.text ""
+        , CardSearchForm.View.view model.cardSearchFormModel
+        , Deck.view model.deck model.board
+        ]
