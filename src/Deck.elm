@@ -27,7 +27,9 @@ import Css
         , justifyContent
         , left
         , margin
+        , marginBottom
         , marginLeft
+        , marginTop
         , maxWidth
         , minWidth
         , padding
@@ -47,8 +49,6 @@ import Json.Encode as Encode
 import Msg exposing (Msg(..))
 import ScryfallApi
 import UI
-import Css exposing (marginTop)
-import Css exposing (marginBottom)
 
 
 type alias DeckCard =

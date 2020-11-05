@@ -1,16 +1,12 @@
 module Main exposing (main)
 
-import Board
 import Browser
 import CardSearchForm.View
-import Css exposing (backgroundColor, displayFlex, hex, none, padding, px)
+import Css exposing (displayFlex)
 import Deck
-import File.Download as Download
 import Html.Styled exposing (Attribute, Html, div, styled, toUnstyled)
 import Model
 import Msg exposing (Msg)
-import RequestStatus
-import ScryfallApi
 import Update
 
 

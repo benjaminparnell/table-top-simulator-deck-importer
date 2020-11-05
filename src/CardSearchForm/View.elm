@@ -11,7 +11,9 @@ import Css
         , hex
         , marginBottom
         , marginRight
+        , marginTop
         , maxWidth
+        , none
         , overflowY
         , padding
         , padding2
@@ -19,7 +21,6 @@ import Css
         , position
         , px
         , relative
-        , marginTop
         , right
         , scroll
         , solid
@@ -33,7 +34,6 @@ import Msg
 import RequestStatus
 import ScryfallApi
 import UI
-import Css exposing (none)
 
 
 cardColumn : List ScryfallApi.Card -> Html Msg.Msg
