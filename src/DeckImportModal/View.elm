@@ -13,22 +13,22 @@ import Css
         , flexDirection
         , height
         , hex
+        , int
         , left
         , marginTop
         , padding
         , pct
         , position
         , px
+        , rgba
         , top
         , transform
         , translate2
         , width
         , zIndex
-        , int
-        , rgba
         )
 import DeckImportModal.Model
-import Html.Styled exposing (Html, div, styled, text, p, textarea)
+import Html.Styled exposing (Html, div, p, styled, text, textarea)
 import Html.Styled.Attributes exposing (rows)
 import Html.Styled.Events exposing (onClick, onInput)
 import Msg exposing (Msg)

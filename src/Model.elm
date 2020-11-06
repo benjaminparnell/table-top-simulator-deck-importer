@@ -2,7 +2,7 @@ module Model exposing (Model, initial, setCardSearchFormModel, setDeck, setDeckI
 
 import Board
 import CardSearchForm.Model
-import Deck
+import Deck.Model
 import DeckImportModal.Model
 import RequestStatus
 import ScryfallApi
@@ -11,7 +11,7 @@ import ScryfallApi
 type alias Model =
     { cardSearchFormModel : CardSearchForm.Model.CardSearchFormModel
     , deckImportModalModel : DeckImportModal.Model.DeckImportModalModel
-    , deck : Deck.Deck
+    , deck : Deck.Model.Deck
     , board : Board.Board
     , isModalOpen : Bool
     }
@@ -22,12 +22,12 @@ initial =
     Model
         CardSearchForm.Model.initial
         DeckImportModal.Model.initial
-        (Deck.Deck [] [] "")
+        (Deck.Model.Deck [] [] "")
         Board.Main
         False
 
 
-setDeck : Deck.Deck -> Model -> Model
+setDeck : Deck.Model.Deck -> Model -> Model
 setDeck deck model =
     { model | deck = deck }
 

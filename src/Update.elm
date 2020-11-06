@@ -2,7 +2,8 @@ module Update exposing (update)
 
 import Board
 import CardSearchForm.Model as CardSearchFormModel
-import Deck
+import Deck.Export as DeckExport
+import Deck.Model as Deck
 import DeckImportModal.Importer as DeckImporter
 import DeckImportModal.Model
 import File.Download as Download
@@ -10,6 +11,7 @@ import Model
 import Msg
 import RequestStatus
 import ScryfallApi
+import Util
 
 
 update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
@@ -81,7 +83,7 @@ update msg model =
             ( { model | deck = Deck.setBoardCards board (Deck.decreaseQuantityOfCard cardId board model.deck) model.deck }, Cmd.none )
 
         Msg.ExportDeckToTableTopSimulator ->
-            ( model, Download.string (Deck.getName model.deck ++ ".json") "application/json" (Deck.exportDeckToTableTopSimulator model.deck) )
+            ( model, Download.string (Deck.getName model.deck ++ ".json") "application/json" (DeckExport.exportDeckToTableTopSimulator model.deck) )
 
         Msg.UpdateDeckName deckName ->
             ( { model | deck = Deck.setName deckName model.deck }, Cmd.none )
@@ -155,7 +157,7 @@ update msg model =
 
             else
                 ( model
-                , Deck.chunk 75 cardNames
+                , Util.chunk 75 cardNames
                     |> List.map (\cardChunk -> ScryfallApi.fetchCollectionByNames cardChunk (Msg.GotCardsFromImport cards))
                     |> Cmd.batch
                 )

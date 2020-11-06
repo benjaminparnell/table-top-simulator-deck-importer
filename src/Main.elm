@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser
 import CardSearchForm.View
 import Css exposing (displayFlex)
-import Deck
+import Deck.View
 import DeckImportModal.View
 import Html.Styled exposing (Attribute, Html, div, styled, toUnstyled)
 import Model
@@ -37,5 +37,5 @@ view model =
           else
             Html.Styled.text ""
         , CardSearchForm.View.view model.cardSearchFormModel
-        , Deck.view model.deck model.board
+        , Deck.View.view model.deck model.board
         ]
