@@ -14,7 +14,7 @@ import ScryfallApi
 
 
 type alias CardSearchFormModel =
-    { cardSearchRequestStatus : Maybe RequestStatus.RequestStatus
+    { cardSearchRequestStatus : RequestStatus.RequestStatus
     , cardName : String
     , setCode : String
     , foundCard : Maybe ScryfallApi.Card
@@ -24,12 +24,12 @@ type alias CardSearchFormModel =
 
 initial : CardSearchFormModel
 initial =
-    CardSearchFormModel Nothing "" "" Nothing Nothing
+    CardSearchFormModel RequestStatus.Initial "" "" Nothing Nothing
 
 
 resetForm : CardSearchFormModel -> CardSearchFormModel
 resetForm model =
-    { model | cardSearchRequestStatus = Nothing, foundCard = Nothing, foundPrintings = Nothing }
+    { model | cardSearchRequestStatus = RequestStatus.Initial, foundCard = Nothing, foundPrintings = Nothing }
 
 
 setCardName : String -> CardSearchFormModel -> CardSearchFormModel
@@ -39,7 +39,7 @@ setCardName cardName model =
 
 setSearchRequestStatus : RequestStatus.RequestStatus -> CardSearchFormModel -> CardSearchFormModel
 setSearchRequestStatus requestStatus model =
-    { model | cardSearchRequestStatus = Just requestStatus }
+    { model | cardSearchRequestStatus = requestStatus }
 
 
 setFoundCard : Maybe ScryfallApi.Card -> CardSearchFormModel -> CardSearchFormModel

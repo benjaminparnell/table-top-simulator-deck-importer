@@ -107,10 +107,10 @@ view model =
             [ displayFlex, marginBottom (px 10) ]
             []
             [ UI.input [ marginRight (px 10) ] [ type_ "text", placeholder "Enter a card name here", onInput Msg.UpdateCardName ] []
-            , UI.button [] [ onClick Msg.SearchCardName, disabled (model.cardSearchRequestStatus == Just RequestStatus.Loading) ] [ text "Search card" ]
+            , UI.button [] [ onClick Msg.SearchCardName, disabled (model.cardSearchRequestStatus == RequestStatus.Loading) ] [ text "Search card" ]
             ]
         , case model.cardSearchRequestStatus of
-            Just RequestStatus.Failure ->
+            RequestStatus.Failure ->
                 text "Looks like we couldn't find that card on Scryfall."
 
             _ ->

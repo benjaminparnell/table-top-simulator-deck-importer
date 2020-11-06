@@ -5,3 +5,4 @@ type RequestStatus
     = Success
     | Loading
     | Failure
+    | Initial
