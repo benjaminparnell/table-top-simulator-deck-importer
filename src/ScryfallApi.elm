@@ -4,6 +4,7 @@ module ScryfallApi exposing
     , CardSearchResponse
     , fetchCardByName
     , fetchCardsByName
+    , fetchCardsByNameMore
     , fetchCollectionByNames
     )
 
@@ -97,6 +98,14 @@ fetchCardsByName : String -> (Result Http.Error CardSearchResponse -> msg) -> Cm
 fetchCardsByName cardName msg =
     Http.get
         { url = baseURL ++ "/cards/search?unique=prints&q=!\"" ++ cardName ++ "\""
+        , expect = Http.expectJson msg cardSearchResponseDecoder
+        }
+
+
+fetchCardsByNameMore : String -> (Result Http.Error CardSearchResponse -> msg) -> Cmd msg
+fetchCardsByNameMore url msg =
+    Http.get
+        { url = url
         , expect = Http.expectJson msg cardSearchResponseDecoder
         }
 

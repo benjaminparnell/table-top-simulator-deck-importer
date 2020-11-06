@@ -102,8 +102,23 @@ update msg model =
         Msg.GotAlternativePrintings result ->
             case result of
                 Ok response ->
-                    ( Model.setCardSearchFormModel (model.cardSearchFormModel |> CardSearchFormModel.setSearchRequestStatus RequestStatus.Success |> CardSearchFormModel.setFoundPrintings (Just response.data)) model
-                    , Cmd.none
+                    ( Model.setCardSearchFormModel
+                        (model.cardSearchFormModel
+                            |> CardSearchFormModel.setSearchRequestStatus RequestStatus.Success
+                            |> CardSearchFormModel.setFoundPrintings
+                                (model.cardSearchFormModel.foundPrintings
+                                    |> Maybe.map (\prints -> prints ++ response.data)
+                                    |> Maybe.withDefault response.data
+                                    |> Just
+                                )
+                        )
+                        model
+                    , case response.nextPage of
+                        Just url ->
+                            ScryfallApi.fetchCardsByNameMore url Msg.GotAlternativePrintings
+
+                        Nothing ->
+                            Cmd.none
                     )
 
                 Err _ ->

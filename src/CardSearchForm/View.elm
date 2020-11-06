@@ -25,6 +25,7 @@ import Css
         , scroll
         , solid
         , width
+        , top
         )
 import Html.Styled exposing (Attribute, Html, button, div, img, input, styled, text)
 import Html.Styled.Attributes exposing (alt, disabled, placeholder, src, type_)
@@ -51,7 +52,7 @@ getCardImage card =
 cardColumn : List ScryfallApi.Card -> Html Msg.Msg
 cardColumn cards =
     styled div
-        []
+        [ position fixed, top (px 75), bottom (px 0), overflowY scroll ]
         []
         (List.map
             (\card ->
