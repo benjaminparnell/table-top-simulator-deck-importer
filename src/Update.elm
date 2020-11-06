@@ -18,7 +18,7 @@ update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     case msg of
         Msg.UpdateCardName cardName ->
-            ( Model.setCardSearchFormModel (model.cardSearchFormModel |> CardSearchFormModel.setCardName cardName) model, Cmd.none )
+            ( Model.setCardSearchFormModel (CardSearchFormModel.setCardName cardName model.cardSearchFormModel) model, Cmd.none )
 
         Msg.SearchCardName ->
             ( Model.setCardSearchFormModel
@@ -115,12 +115,9 @@ update msg model =
                                 )
                         )
                         model
-                    , case response.nextPage of
-                        Just url ->
-                            ScryfallApi.fetchCardsByNameMore url Msg.GotAlternativePrintings
-
-                        Nothing ->
-                            Cmd.none
+                    , response.nextPage
+                        |> Maybe.map (\url -> ScryfallApi.fetchCardsByNameMore url Msg.GotAlternativePrintings)
+                        |> Maybe.withDefault Cmd.none
                     )
 
                 Err _ ->
@@ -145,19 +142,15 @@ update msg model =
 
                 cards =
                     DeckImporter.getCardsFromDeckString deckString deckStringFormat
-
-                cardNames =
-                    List.map (\t -> Tuple.first t) cards
             in
-            if DeckImporter.isInvalidFormat deckStringFormat then
-                ( model, Cmd.none )
-
-            else if List.isEmpty cards then
+            if DeckImporter.isInvalidFormat deckStringFormat || List.isEmpty cards then
                 ( model, Cmd.none )
 
             else
                 ( model
-                , Util.chunk 75 cardNames
+                , cards
+                    |> List.map Tuple.first
+                    |> Util.chunk 75
                     |> List.map (\cardChunk -> ScryfallApi.fetchCollectionByNames cardChunk (Msg.GotCardsFromImport cards))
                     |> Cmd.batch
                 )
@@ -209,4 +202,4 @@ update msg model =
             )
 
         Msg.UpdateSetCode setCode ->
-            ( Model.setCardSearchFormModel (model.cardSearchFormModel |> CardSearchFormModel.setSetCode setCode) model, Cmd.none )
+            ( Model.setCardSearchFormModel (CardSearchFormModel.setSetCode setCode model.cardSearchFormModel) model, Cmd.none )

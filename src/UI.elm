@@ -1,4 +1,4 @@
-module UI exposing (artButton, button, dangerButton, input, successButton, textButton, colors)
+module UI exposing (artButton, button, colors, dangerButton, input, successButton, textButton)
 
 import Css
     exposing
@@ -27,7 +27,8 @@ import Css
 import Html.Styled exposing (Attribute, Html, styled)
 import Msg
 
-type alias Colors = 
+
+type alias Colors =
     { red : String
     , blue : String
     , purple : String
@@ -36,6 +37,7 @@ type alias Colors =
     , grey : String
     , white : String
     }
+
 
 colors : Colors
 colors =

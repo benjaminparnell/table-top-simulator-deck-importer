@@ -9,15 +9,29 @@ type DeckStringFormat
     | Invalid
 
 
+parseLines : String -> List String
+parseLines string =
+    string |> String.lines |> List.filter (\line -> not <| String.isEmpty line)
+
+
+splitLines : String -> List String -> List (List String)
+splitLines splitter =
+    List.map (String.split splitter)
+
+
+partsToCardTuple : List String -> Maybe ( String, Int )
+partsToCardTuple parts =
+    case parts of
+        [ quantity, cardName ] ->
+            Just ( cardName, String.toInt quantity |> Maybe.withDefault 1 )
+
+        _ ->
+            Nothing
+
+
 getDeckStringFormat : String -> DeckStringFormat
 getDeckStringFormat deckString =
-    let
-        deckStringLines =
-            deckString
-                |> String.lines
-                |> List.filter (\line -> not <| String.isEmpty line)
-    in
-    case deckStringLines of
+    case parseLines deckString of
         [] ->
             Invalid
 
@@ -61,23 +75,13 @@ getCardsFromDeckString : String -> DeckStringFormat -> List ( String, Int )
 getCardsFromDeckString deckString deckStringFormat =
     if deckStringFormat == NumberAndX then
         deckString
-            |> String.lines
-            |> List.filter (\line -> not <| String.isEmpty line)
-            |> List.map (String.split " x ")
-            |> List.filterMap
-                (\parts ->
-                    case parts of
-                        [ quantity, cardName ] ->
-                            Just ( cardName, String.toInt quantity |> Maybe.withDefault 1 )
-
-                        _ ->
-                            Nothing
-                )
+            |> parseLines
+            |> splitLines " x "
+            |> List.filterMap partsToCardTuple
 
     else if deckStringFormat == NumberOnly then
         deckString
-            |> String.lines
-            |> List.filter (\line -> not <| String.isEmpty line)
+            |> parseLines
             |> List.map
                 (\line ->
                     let
@@ -86,15 +90,7 @@ getCardsFromDeckString deckString deckStringFormat =
                     in
                     List.concat [ [ List.head parts |> Maybe.withDefault "0" ], [ parts |> List.drop 1 |> String.join " " ] ]
                 )
-            |> List.filterMap
-                (\parts ->
-                    case parts of
-                        [ quantity, cardName ] ->
-                            Just ( cardName, String.toInt quantity |> Maybe.withDefault 1 )
-
-                        _ ->
-                            Nothing
-                )
+            |> List.filterMap partsToCardTuple
 
     else
         []

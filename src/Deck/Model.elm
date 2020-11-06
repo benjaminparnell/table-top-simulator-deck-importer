@@ -152,7 +152,7 @@ swapCardByName cardName apiCard cards =
     in
     cards
         |> List.filter (\card -> card.name /= cardName)
-        |> List.append (List.singleton { mappedCard | quantity = existingQuantity })
+        |> List.append [ { mappedCard | quantity = existingQuantity } ]
 
 
 swapCardByNameInBoard : String -> ScryfallApi.Card -> Board.Board -> Deck -> Deck

@@ -1,7 +1,7 @@
 module Deck.Export exposing (..)
 
-import Deck.View as DeckView
 import Deck.Model as Deck
+import Deck.View as DeckView
 import Json.Encode as Encode
 
 
@@ -59,6 +59,10 @@ thirdDeckCoords =
     , scaleZ = 1
     }
 
+cardBackUrl : String
+cardBackUrl =
+    "https://s3.amazonaws.com/frogtown.cards.hq/CardBack.jpg"
+
 
 encodeCardFields : Deck.DeckCard -> List ( String, Encode.Value )
 encodeCardFields card =
@@ -91,10 +95,10 @@ getBackImageUrl card doubleFaced =
     if doubleFaced then
         card.faces
             |> Maybe.map (\cardFaces -> Tuple.second cardFaces |> .image)
-            |> Maybe.withDefault "https://s3.amazonaws.com/frogtown.cards.hq/CardBack.jpg"
+            |> Maybe.withDefault cardBackUrl
 
     else
-        "https://s3.amazonaws.com/frogtown.cards.hq/CardBack.jpg"
+        cardBackUrl
 
 
 encodeImage : Bool -> Deck.DeckCard -> Encode.Value
@@ -163,14 +167,7 @@ collectDoubleFacedCardsInDeck : Deck.Deck -> List Deck.DeckCard
 collectDoubleFacedCardsInDeck deck =
     List.concat [ deck.cards, deck.sideboard ]
         |> List.filter
-            (\card ->
-                case card.faces of
-                    Just _ ->
-                        True
-
-                    Nothing ->
-                        False
-            )
+            (\card -> Maybe.withDefault False <| Maybe.map (\a -> True) card.faces)
 
 
 encodeObjectStates : Deck.Deck -> Encode.Value

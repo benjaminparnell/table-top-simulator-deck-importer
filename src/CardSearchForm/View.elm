@@ -103,37 +103,35 @@ view model =
     styled div
         [ width (pct 35), padding (px 15) ]
         []
-        [ styled div
+        ([ styled div
             [ displayFlex, marginBottom (px 10) ]
             []
             [ UI.input [ marginRight (px 10) ] [ type_ "text", placeholder "Enter a card name here", onInput Msg.UpdateCardName ] []
             , UI.button [] [ onClick Msg.SearchCardName, disabled (model.cardSearchRequestStatus == RequestStatus.Loading) ] [ text "Search card" ]
             ]
-        , case model.cardSearchRequestStatus of
+         , case model.cardSearchRequestStatus of
             RequestStatus.Failure ->
                 text "Looks like we couldn't find that card on Scryfall."
 
             _ ->
                 text ""
-        , case model.foundCard of
+         , case model.foundCard of
             Just card ->
                 cardView (searchCardViewButtons card) card
 
             Nothing ->
                 text ""
-        , case model.foundPrintings of
-            Just cards ->
-                UI.input
-                    [ displayFlex, width (px 315) ]
-                    [ type_ "text", placeholder "Filter by set code (ELD, CMR etc)", value model.setCode, onInput Msg.UpdateSetCode ]
-                    []
+         ]
+            ++ (case model.foundPrintings of
+                    Just cards ->
+                        [ UI.input
+                            [ displayFlex, width (px 315) ]
+                            [ type_ "text", placeholder "Filter by set code (ELD, CMR etc)", value model.setCode, onInput Msg.UpdateSetCode ]
+                            []
+                        , cardColumn cards model.setCode
+                        ]
 
-            Nothing ->
-                text ""
-        , case model.foundPrintings of
-            Just cards ->
-                cardColumn cards model.setCode
-
-            Nothing ->
-                text ""
-        ]
+                    Nothing ->
+                        [ text "" ]
+               )
+        )

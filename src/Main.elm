@@ -5,7 +5,7 @@ import CardSearchForm.View
 import Css exposing (displayFlex)
 import Deck.View
 import DeckImportModal.View
-import Html.Styled exposing (Attribute, Html, div, styled, toUnstyled)
+import Html.Styled exposing (Attribute, Html, div, styled, toUnstyled, text)
 import Model
 import Msg exposing (Msg)
 import Update
@@ -35,7 +35,7 @@ view model =
             DeckImportModal.View.view model.deckImportModalModel
 
           else
-            Html.Styled.text ""
+            text ""
         , CardSearchForm.View.view model.cardSearchFormModel
         , Deck.View.view model.deck model.board
         ]
