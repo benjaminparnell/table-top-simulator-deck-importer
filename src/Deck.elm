@@ -133,26 +133,30 @@ thirdDeckCoords =
     }
 
 
+encodeCardFields : DeckCard -> List ( String, Encode.Value )
+encodeCardFields card =
+    [ ( "CardID", String.toInt card.id |> Maybe.withDefault 0 |> Encode.int )
+    , ( "Name", Encode.string "Card" )
+    , ( "Nickname", Encode.string card.name )
+    , ( "Transform"
+      , Encode.object
+            [ ( "posX", Encode.int 0 )
+            , ( "posY", Encode.int 0 )
+            , ( "posZ", Encode.int 0 )
+            , ( "rotX", Encode.int 0 )
+            , ( "rotY", Encode.int 180 )
+            , ( "rotZ", Encode.int 180 )
+            , ( "scaleX", Encode.int 1 )
+            , ( "scaleY", Encode.int 1 )
+            , ( "scaleZ", Encode.int 1 )
+            ]
+      )
+    ]
+
+
 encodeCard : DeckCard -> Encode.Value
 encodeCard card =
-    Encode.object
-        [ ( "CardID", String.toInt card.id |> Maybe.withDefault 0 |> Encode.int )
-        , ( "Name", Encode.string "Card" )
-        , ( "Nickname", Encode.string card.name )
-        , ( "Transform"
-          , Encode.object
-                [ ( "posX", Encode.int 0 )
-                , ( "posY", Encode.int 0 )
-                , ( "posZ", Encode.int 0 )
-                , ( "rotX", Encode.int 0 )
-                , ( "rotY", Encode.int 180 )
-                , ( "rotZ", Encode.int 180 )
-                , ( "scaleX", Encode.int 1 )
-                , ( "scaleY", Encode.int 1 )
-                , ( "scaleZ", Encode.int 1 )
-                ]
-          )
-        ]
+    Encode.object <| encodeCardFields card
 
 
 getBackImageUrl : DeckCard -> Bool -> String
@@ -217,6 +221,10 @@ makeEncodeableDecks deck =
         ++ (if List.isEmpty deck.sideboard then
                 [ ( collectDoubleFacedCardsInDeck deck, secondDeckCoords, True ) ]
 
+            else if List.isEmpty (collectDoubleFacedCardsInDeck deck) then
+                [ ( deck.sideboard, secondDeckCoords, False )
+                ]
+
             else
                 [ ( deck.sideboard, secondDeckCoords, False )
                 , ( collectDoubleFacedCardsInDeck deck, thirdDeckCoords, True )
@@ -264,15 +272,35 @@ encodeCoords coords =
 
 encodeDeck : ( List DeckCard, DeckCoords, Bool ) -> Encode.Value
 encodeDeck ( cards, coords, doubleFaced ) =
-    Encode.object
-        [ ( "Name", Encode.string "DeckCustom" )
-        , ( "ContainedObjects", cards |> encodeContainedObjects )
-        , ( "CustomDeck", cards |> encodeImages doubleFaced )
-        , ( "DeckIDs", cards |> encodeDeckIds )
-        , ( "Transform"
-          , encodeCoords coords
-          )
-        ]
+    if List.length cards > 1 then
+        Encode.object
+            [ ( "Name", Encode.string "DeckCustom" )
+            , ( "ContainedObjects", cards |> encodeContainedObjects )
+            , ( "CustomDeck", cards |> encodeImages doubleFaced )
+            , ( "DeckIDs", cards |> encodeDeckIds )
+            , ( "Transform"
+              , encodeCoords coords
+              )
+            ]
+
+    else
+        case List.head cards of
+            Just card ->
+                { card | id = "100" }
+                    |> encodeCardFields
+                    |> List.append [ ( "CustomDeck", cards |> encodeImages doubleFaced ) ]
+                    |> List.map
+                        (\field ->
+                            if Tuple.first field == "Transform" then
+                                ( "Transform", encodeCoords coords )
+
+                            else
+                                field
+                        )
+                    |> Encode.object
+
+            Nothing ->
+                Encode.bool False
 
 
 exportDeckToTableTopSimulator : Deck -> String
