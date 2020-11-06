@@ -7,6 +7,7 @@ import Css
         , border3
         , borderRadius
         , bottom
+        , displayFlex
         , fixed
         , hex
         , marginBottom
@@ -24,8 +25,8 @@ import Css
         , right
         , scroll
         , solid
-        , width
         , top
+        , width
         )
 import Html.Styled exposing (Attribute, Html, button, div, img, input, styled, text)
 import Html.Styled.Attributes exposing (alt, disabled, placeholder, src, type_)
@@ -93,8 +94,12 @@ view model =
     styled div
         [ width (pct 35), padding (px 15) ]
         []
-        [ UI.input [ marginBottom (px 10) ] [ type_ "text", placeholder "Enter a card name here", onInput Msg.UpdateCardName ] []
-        , UI.button [] [ onClick Msg.SearchCardName, disabled (model.cardSearchRequestStatus == Just RequestStatus.Loading) ] [ text "Search card" ]
+        [ styled div
+            [ displayFlex, marginBottom (px 10) ]
+            []
+            [ UI.input [ marginRight (px 10) ] [ type_ "text", placeholder "Enter a card name here", onInput Msg.UpdateCardName ] []
+            , UI.button [] [ onClick Msg.SearchCardName, disabled (model.cardSearchRequestStatus == Just RequestStatus.Loading) ] [ text "Search card" ]
+            ]
         , case model.cardSearchRequestStatus of
             Just RequestStatus.Failure ->
                 text "Looks like we couldn't find that card on Scryfall."
