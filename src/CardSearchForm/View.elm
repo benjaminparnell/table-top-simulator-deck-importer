@@ -50,14 +50,20 @@ getCardImage card =
                 |> Maybe.withDefault ""
 
 
-cardColumn : List ScryfallApi.Card -> Html Msg.Msg
-cardColumn cards =
+cardColumn : List ScryfallApi.Card -> String -> Html Msg.Msg
+cardColumn cards setCode =
     styled div
-        [ position fixed, top (px 75), bottom (px 0), overflowY scroll ]
+        [ position fixed, top (px 100), bottom (px 0), overflowY scroll ]
         []
-        (List.map
+        (List.filterMap
             (\card ->
-                cardView [ UI.artButton [] [ onClick (Msg.SwapCardArt card.name card) ] [ text "Use art" ] ] card
+                if not (String.isEmpty setCode) then
+                    if card.set == String.toLower setCode then
+                        Just (cardView [ UI.artButton [] [ onClick (Msg.SwapCardArt card.name card) ] [ text "Use art" ] ] card)
+                    else
+                        Nothing
+                else
+                    Just (cardView [ UI.artButton [] [ onClick (Msg.SwapCardArt card.name card) ] [ text "Use art" ] ] card)
             )
             cards
         )
@@ -114,7 +120,13 @@ view model =
                 text ""
         , case model.foundPrintings of
             Just cards ->
-                cardColumn cards
+                UI.input [ displayFlex, width (px 315) ] [ type_ "text", placeholder "Filter by set code (ELD, CMR etc)", onInput Msg.UpdateSetCode ] []
+
+            Nothing ->
+                text ""
+        , case model.foundPrintings of
+            Just cards ->
+                cardColumn cards model.setCode
 
             Nothing ->
                 text ""

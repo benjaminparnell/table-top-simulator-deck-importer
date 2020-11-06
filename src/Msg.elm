@@ -23,3 +23,4 @@ type Msg
     | UpdateDeckString String
     | ImportDeck String
     | GotCardsFromImport (List ( String, Int )) (Result Http.Error ScryfallApi.CardCollectionResponse)
+    | UpdateSetCode String
