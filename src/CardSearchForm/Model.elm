@@ -51,6 +51,7 @@ setFoundPrintings : Maybe (List ScryfallApi.Card) -> CardSearchFormModel -> Card
 setFoundPrintings cards model =
     { model | foundPrintings = cards }
 
+
 setSetCode : String -> CardSearchFormModel -> CardSearchFormModel
 setSetCode setCode model =
     { model | setCode = setCode }

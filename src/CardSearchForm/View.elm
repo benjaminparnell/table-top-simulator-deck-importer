@@ -9,6 +9,7 @@ import Css
         , bottom
         , displayFlex
         , fixed
+        , height
         , hex
         , marginBottom
         , marginRight
@@ -27,10 +28,9 @@ import Css
         , solid
         , top
         , width
-        , height
         )
 import Html.Styled exposing (Attribute, Html, button, div, img, input, styled, text)
-import Html.Styled.Attributes exposing (alt, disabled, placeholder, src, type_)
+import Html.Styled.Attributes exposing (alt, disabled, placeholder, src, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Model
 import Msg
@@ -61,8 +61,10 @@ cardColumn cards setCode =
                 if not (String.isEmpty setCode) then
                     if card.set == String.toLower setCode then
                         Just (cardView [ UI.artButton [] [ onClick (Msg.SwapCardArt card.name card) ] [ text "Use art" ] ] card)
+
                     else
                         Nothing
+
                 else
                     Just (cardView [ UI.artButton [] [ onClick (Msg.SwapCardArt card.name card) ] [ text "Use art" ] ] card)
             )
@@ -121,7 +123,10 @@ view model =
                 text ""
         , case model.foundPrintings of
             Just cards ->
-                UI.input [ displayFlex, width (px 315) ] [ type_ "text", placeholder "Filter by set code (ELD, CMR etc)", onInput Msg.UpdateSetCode ] []
+                UI.input
+                    [ displayFlex, width (px 315) ]
+                    [ type_ "text", placeholder "Filter by set code (ELD, CMR etc)", value model.setCode, onInput Msg.UpdateSetCode ]
+                    []
 
             Nothing ->
                 text ""

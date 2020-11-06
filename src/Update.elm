@@ -205,6 +205,6 @@ update msg model =
                 model
             , Cmd.none
             )
-        
+
         Msg.UpdateSetCode setCode ->
-            (Model.setCardSearchFormModel (model.cardSearchFormModel |> CardSearchFormModel.setSetCode setCode) model, Cmd.none)
+            ( Model.setCardSearchFormModel (model.cardSearchFormModel |> CardSearchFormModel.setSetCode setCode) model, Cmd.none )
