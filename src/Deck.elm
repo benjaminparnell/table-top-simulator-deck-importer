@@ -426,11 +426,11 @@ getCardImage card =
 cardView : Board.Board -> DeckCard -> Html Msg
 cardView board card =
     styled div
-        [ width (px 250), maxWidth (pct 33), position relative, padding (px 10), zIndex (int 1) ]
+        [ width (px 250), maxWidth (pct 33), position relative, padding (px 10), zIndex (int 1), height (px 350) ]
         []
         [ styled img [ maxWidth (pct 100), marginTop (px 0), marginBottom (px 0) ] [ src <| getCardImage card ] []
         , styled div
-            [ position absolute, bottom (px 10), right (px 10), displayFlex, padding (px 10) ]
+            [ position absolute, bottom (px 6), right (px 10), displayFlex, padding (px 10) ]
             []
             [ UI.dangerButton cardViewButtonStyles [ onClick (Msg.RemoveOneOfCardFromDeck board card.id) ] [ text "-" ]
             , UI.button cardViewButtonStyles [] [ text (String.fromInt card.quantity) ]

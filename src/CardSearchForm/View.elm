@@ -27,6 +27,7 @@ import Css
         , solid
         , top
         , width
+        , height
         )
 import Html.Styled exposing (Attribute, Html, button, div, img, input, styled, text)
 import Html.Styled.Attributes exposing (alt, disabled, placeholder, src, type_)
@@ -72,7 +73,7 @@ cardColumn cards setCode =
 cardView : List (Html Msg.Msg) -> ScryfallApi.Card -> Html Msg.Msg
 cardView actions card =
     styled div
-        [ position relative, padding (px 10), width (px 336) ]
+        [ position relative, padding (px 10), width (px 336), height (px 480) ]
         []
         [ styled img [ maxWidth none, width (pct 100), marginTop (px 0), marginBottom (px 0) ] [ src <| getCardImage card, alt card.name ] []
         , styled div
