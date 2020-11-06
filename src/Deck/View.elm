@@ -119,7 +119,7 @@ view deck board =
         [ width (pct 100) ]
         []
         [ styled div
-            [ displayFlex, justifyContent spaceBetween, backgroundColor (hex "#e3e3e3"), padding (px 15) ]
+            [ displayFlex, justifyContent spaceBetween, backgroundColor (hex UI.colors.grey), padding (px 15) ]
             []
             [ UI.input [] [ placeholder "Deck name", name "deckName", value deck.name, onInput UpdateDeckName ] []
             , div []

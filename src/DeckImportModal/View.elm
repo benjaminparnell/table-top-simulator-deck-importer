@@ -48,7 +48,7 @@ view model =
         ]
         []
         [ styled div
-            [ backgroundColor (hex "#FFFFFF")
+            [ backgroundColor (hex UI.colors.white)
             , position absolute
             , top (pct 50)
             , left (pct 50)
